@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Planner - Exam Countdown</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <svg width="0" height="0">
+        <defs>
+            <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#667eea" />
+                <stop offset="100%" stop-color="#764ba2" />
+            </linearGradient>
+        </defs>
+    </svg>
+
+    <div class="container">
+        <div class="header">
+            <h1>Study Planner</h1>
+            <p>Countdown to Exam Day</p>
+        </div>
+
+        <div class="exam-date" id="examDateDisplay"></div>
+        <div class="exam-picker">
+            <label for="examInput">Exam date</label>
+            <input type="date" id="examInput">
+        </div>
+
+        <div class="countdown">
+            <div class="countdown-item">
+                <div class="number" id="days">0</div>
+                <div class="label">Days</div>
+            </div>
+            <div class="countdown-item">
+                <div class="number" id="hours">0</div>
+                <div class="label">Hours</div>
+            </div>
+            <div class="countdown-item">
+                <div class="number" id="minutes">0</div>
+                <div class="label">Minutes</div>
+            </div>
+            <div class="countdown-item">
+                <div class="number" id="seconds">0</div>
+                <div class="label">Seconds</div>
+            </div>
+        </div>
+
+        <div class="pomodoro" id="pomodoro">
+            <h2>Pomodoro Focus</h2>
+            <div class="pomodoro-modes">
+                <button class="active" data-mode="focus">Focus</button>
+                <button data-mode="short">Short Break</button>
+                <button data-mode="long">Long Break</button>
+            </div>
+            <div class="timer-ring">
+                <svg width="240" height="240" viewBox="0 0 240 240">
+                    <circle class="bg" cx="120" cy="120" r="100" />
+                    <circle class="progress" id="timerProgress" cx="120" cy="120" r="100" />
+                </svg>
+                <div class="time-display">
+                    <div class="time" id="timerDisplay">25:00</div>
+                    <div class="phase-label" id="phaseLabel">Focus</div>
+                </div>
+            </div>
+            <div class="pomodoro-controls">
+                <button class="play-btn" id="playBtn">&#9654;</button>
+                <button class="reset-btn-small" id="resetPomoBtn">&#8634;</button>
+            </div>
+            <div class="pomo-settings">
+                <label>Focus <input type="number" id="setFocus" min="1" max="120" value="25"></label>
+                <label>Short <input type="number" id="setShort" min="1" max="60" value="5"></label>
+                <label>Long <input type="number" id="setLong" min="1" max="60" value="15"></label>
+                <label class="chk"><input type="checkbox" id="setAuto"> Auto-start next</label>
+            </div>
+            <div class="pomodoro-stats">
+                <div class="stat">
+                    <div class="num" id="pomoCount">0</div>
+                    <div class="label">Pomodoros</div>
+                </div>
+                <div class="stat">
+                    <div class="num" id="pomoToday">0</div>
+                    <div class="label">Today</div>
+                </div>
+                <div class="stat">
+                    <div class="num" id="pomoCycle">0/4</div>
+                    <div class="label">Cycle</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="soundscape">
+            <h2>Soundscape &middot; Focus Music</h2>
+            <div class="sound-grid" id="soundGrid"></div>
+            <div class="sound-vol">
+                <span class="vol-label">Volume</span>
+                <input type="range" id="soundVolume" min="0" max="100" value="60">
+                <span class="vol-label" id="volPct">60%</span>
+            </div>
+        </div>
+
+        <div class="music">
+            <h2>Music Player</h2>
+            <div class="music-now" id="musicNow">No track loaded</div>
+            <audio id="audioEl"></audio>
+            <div class="music-seek">
+                <span id="curTime">0:00</span>
+                <input type="range" id="musicSeek" min="0" max="100" value="0">
+                <span id="durTime">0:00</span>
+            </div>
+            <div class="music-controls">
+                <button id="prevBtn">&#9198;</button>
+                <button id="musicPlayBtn" class="play-btn">&#9654;</button>
+                <button id="nextBtn">&#9197;</button>
+                <input type="range" id="musicVol" min="0" max="100" value="70">
+            </div>
+            <div class="music-add">
+                <label class="file-btn">+ Add audio files<input type="file" id="musicFiles" accept="audio/*" multiple hidden></label>
+                <input type="text" id="musicUrl" placeholder="or paste an audio URL (mp3 / stream)">
+                <button id="musicUrlBtn" class="file-btn">Add URL</button>
+            </div>
+            <div class="playlist" id="playlist"></div>
+        </div>
+
+        <div class="progress-section">
+            <h2>Study Progress</h2>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">0% complete</div>
+        </div>
+
+        <div class="total-hours">
+            <div class="num" id="totalHours">0</div>
+            <div class="label">Total Study Hours Planned</div>
+        </div>
+
+        <div class="subjects">
+            <h2>Subjects</h2>
+            <div class="subject-list" id="subjectList"></div>
+        </div>
+
+        <div class="timetable">
+            <h2>Weekly Timetable</h2>
+            <div class="timetable-grid" id="timetableGrid"></div>
+        </div>
+
+        <div class="schedule">
+            <h2>Study Sessions</h2>
+            <div class="schedule-controls">
+                <input type="text" id="sessionSubject" placeholder="Subject name" list="subjectSuggestions">
+                <datalist id="subjectSuggestions"></datalist>
+                <input type="number" id="sessionHours" placeholder="Hours" min="0.5" step="0.5">
+                <select id="sessionDay">
+                    <option value="monday">Monday</option>
+                    <option value="tuesday">Tuesday</option>
+                    <option value="wednesday">Wednesday</option>
+                    <option value="thursday">Thursday</option>
+                    <option value="friday">Friday</option>
+                    <option value="saturday">Saturday</option>
+                    <option value="sunday">Sunday</option>
+                </select>
+                <button id="addSessionBtn">+ Add Session</button>
+            </div>
+            <div class="schedule-list" id="scheduleList"></div>
+            <button class="reset-btn" id="resetBtn">Clear All Data</button>
+        </div>
+
+        <div class="notes">
+            <h2>Notes</h2>
+            <div class="note-controls">
+                <input type="text" id="noteTitle" placeholder="Note title (e.g. NoSQL - résumé)">
+                <button id="addNoteBtn">+ New Note</button>
+            </div>
+            <div class="notes-layout">
+                <div class="note-list" id="noteList"></div>
+                <textarea id="noteBody" placeholder="Write your notes here... (auto-saved)"></textarea>
+            </div>
+        </div>
+
+        <div class="tips">
+            <h3>Study Tips</h3>
+            <ul>
+                <li>Study in 50-minute focused blocks with 10-minute breaks</li>
+                <li>Review new material within 24 hours to improve retention</li>
+                <li>Mix subjects each day to keep your brain engaged</li>
+                <li>Stay consistent &mdash; 1 hour daily beats 7 hours on Sunday</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
