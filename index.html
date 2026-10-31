@@ -107,6 +107,9 @@
             <h2>Music Player</h2>
             <div class="music-now" id="musicNow">No track loaded</div>
             <audio id="audioEl"></audio>
+            <div class="yt-wrap" id="ytWrap" hidden>
+                <iframe id="ytFrame" title="YouTube player" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+            </div>
             <div class="music-seek">
                 <span id="curTime">0:00</span>
                 <input type="range" id="musicSeek" min="0" max="100" value="0">
@@ -120,7 +123,7 @@
             </div>
             <div class="music-add">
                 <label class="file-btn">+ Add audio files<input type="file" id="musicFiles" accept="audio/*" multiple hidden></label>
-                <input type="text" id="musicUrl" placeholder="or paste an audio URL (mp3 / stream)">
+                <input type="text" id="musicUrl" placeholder="paste a YouTube link (video or playlist) or an mp3 URL">
                 <button id="musicUrlBtn" class="file-btn">Add URL</button>
             </div>
             <div class="playlist" id="playlist"></div>

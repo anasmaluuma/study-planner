@@ -632,11 +632,37 @@ function renderPlaylist() {
     pl.querySelectorAll('.track').forEach(el => el.addEventListener('click', () => playTrack(parseInt(el.dataset.i))));
 }
 
+function parseYouTube(url) {
+    const m = url.match(/^https?:\/\/(?:www\.|m\.|music\.)?(?:youtube\.com|youtu\.be)\//i);
+    if (!m) return null;
+    let u;
+    try { u = new URL(url); } catch { return null; }
+    const list = u.searchParams.get('list');
+    let video = u.searchParams.get('v');
+    if (u.hostname.includes('youtu.be')) video = u.pathname.slice(1);
+    if (!video && u.pathname.startsWith('/embed/')) video = u.pathname.split('/')[2];
+    if (!video && !list) return null;
+    const q = new URLSearchParams({ autoplay: '1', rel: '0' });
+    if (list) q.set('list', list);
+    const base = video ? `https://www.youtube.com/embed/${video}` : 'https://www.youtube.com/embed/videoseries';
+    return `${base}?${q.toString()}`;
+}
+
 function playTrack(i) {
     if (!tracks[i]) return;
     trackIdx = i;
-    audioEl.src = tracks[i].src;
-    audioEl.play().catch(() => {});
+    const wrap = document.getElementById('ytWrap');
+    const frame = document.getElementById('ytFrame');
+    if (tracks[i].yt) {
+        audioEl.pause();
+        frame.src = tracks[i].src;
+        wrap.hidden = false;
+    } else {
+        frame.src = '';
+        wrap.hidden = true;
+        audioEl.src = tracks[i].src;
+        audioEl.play().catch(() => {});
+    }
     document.getElementById('musicNow').textContent = tracks[i].name;
     renderPlaylist();
 }
@@ -647,13 +673,23 @@ document.getElementById('musicFiles').addEventListener('change', e => {
     renderPlaylist();
 });
 
-document.getElementById('musicUrlBtn').addEventListener('click', () => {
+document.getElementById('musicUrlBtn').addEventListener('click', async () => {
     const input = document.getElementById('musicUrl');
     const url = input.value.trim();
     if (!url) return;
-    tracks.push({ name: url, src: url });
+    const yt = parseYouTube(url);
+    const track = yt ? { name: 'YouTube: ' + url, src: yt, yt: true } : { name: url, src: url };
+    tracks.push(track);
     input.value = '';
     renderPlaylist();
+    if (yt) {
+        try {
+            const r = await fetch('https://www.youtube.com/oembed?format=json&url=' + encodeURIComponent(url));
+            const d = await r.json();
+            if (d.title) { track.name = d.title; renderPlaylist(); }
+        } catch {}
+        if (trackIdx < 0) playTrack(tracks.indexOf(track));
+    }
 });
 
 document.getElementById('musicPlayBtn').addEventListener('click', () => {
